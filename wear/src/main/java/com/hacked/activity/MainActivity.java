@@ -1,4 +1,4 @@
-package com.hacked;
+package com.hacked.activity;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -7,13 +7,12 @@ import android.speech.RecognizerIntent;
 import android.support.wearable.view.WatchViewStub;
 import android.view.View;
 import android.widget.Button;
-import android.widget.TextView;
 
+import com.hacked.R;
+import com.hacked.model.Reminder;
+
+import java.text.ParseException;
 import java.util.List;
-
-import butterknife.ButterKnife;
-import butterknife.InjectView;
-import butterknife.Optional;
 
 public class MainActivity extends Activity {
 
@@ -38,6 +37,8 @@ public class MainActivity extends Activity {
                         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
                                 RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
                         startActivityForResult(intent, SPEECH_REQUEST_CODE);
+
+                        // TODO: add reminder to list of reminders on main screen
                     }
                 });
 
@@ -51,6 +52,17 @@ public class MainActivity extends Activity {
             List<String> results = data.getStringArrayListExtra(
                     RecognizerIntent.EXTRA_RESULTS);
             String spokenText = results.get(0);
+
+            String[] reminderParts = spokenText.split("on");
+            String reminder = reminderParts[0].trim();
+            String date = reminderParts[1].trim();
+
+            try {
+                Reminder newReminder = new Reminder(reminder, date, this);
+                newReminder.save();
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
         }
         super.onActivityResult(requestCode, resultCode, data);
     }
